@@ -1,0 +1,25 @@
+version: "3"
+
+volumes:
+      balena_grafana_data: {}
+
+services:
+
+  balena-prometheus:
+    image: balena-prometheus
+    ports:
+      - "9090:9090"
+
+  balena-grafana:
+    image: balena-grafana
+    volumes:
+          - balena_grafana_data:/var/lib/grafana
+    ports:
+      - "9091:3000"
+
+  balena-api-mock:
+    image: balena-api-mock
+    ports:
+      - "3000:3000"
+
+

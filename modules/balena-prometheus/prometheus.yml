@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 5m
+
+# A scrape configuration containing exactly one endpoint to scrape:
+scrape_configs:
+  - job_name: 'express-app'
+    scrape_interval: 1m # override
+    static_configs:
+      - targets: ['balena-api-mock:3000']

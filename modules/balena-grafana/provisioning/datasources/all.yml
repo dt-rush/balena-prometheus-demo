@@ -1,0 +1,9 @@
+datasources:
+- name: 'balena-prometheus'
+  type: 'prometheus'
+  access: 'proxy'
+  org_id: 1
+  url: 'http://balena-prometheus:9090'
+  is_default: true
+  version: 1
+  editable: true
