@@ -40,13 +40,24 @@ app.use(expressPrometheus({includeMethod: true, buckets: [
 	25.000,
 	30.000]}));
 
+const muGauge = new promClient.Gauge({ name: 'mu', help: 'mu of the log-normal latency-generator' });
+const sigmaGauge = new promClient.Gauge({ name: 'sigma', help: 'sigma of the log-normal latency-generator' });
+
+const handleReq = (req, res, mu, sigma) => () => {
+	console.log(`mu=${mu}`);
+	muGauge.set(mu);
+	sigmaGauge.set(sigma);
+	res.send('ok');
+}
+
 app.get('/latency', (req, res) => {
+	// parse request params and use it to select a random latency from the 
+	// log normal distribution 
 	const mu : number = +req.query.mu || muDefault;
 	const sigma : number = +req.query.sigma || sigmaDefault;
 	const randomSleep = PD.rlnorm(1, mu, sigma);
-	setTimeout(() => {
-		res.send('ok');
-	}, randomSleep); 
+	setTimeout(handleReq(req, res, mu, sigma), randomSleep);
 });
+
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));

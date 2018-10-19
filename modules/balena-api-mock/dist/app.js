@@ -18,16 +18,14 @@ app.use(expressPrometheus({ includeMethod: true, buckets: [
         0.004,
         0.008,
         0.016,
-        0.032,
-        0.064,
+        0.025,
+        0.050,
         0.100,
-        0.128,
-        0.180,
-        0.256,
-        0.360,
-        0.512,
-        0.720,
-        1.024,
+        0.125,
+        0.250,
+        0.500,
+        0.750,
+        1.000,
         1.500,
         2.000,
         3.000,
@@ -39,13 +37,21 @@ app.use(expressPrometheus({ includeMethod: true, buckets: [
         25.000,
         30.000
     ] }));
+const muGauge = new promClient.Gauge({ name: 'mu', help: 'mu of the log-normal latency-generator' });
+const sigmaGauge = new promClient.Gauge({ name: 'sigma', help: 'sigma of the log-normal latency-generator' });
+const handleReq = (req, res, mu, sigma) => () => {
+    console.log(`mu=${mu}`);
+    muGauge.set(mu);
+    sigmaGauge.set(sigma);
+    res.send('ok');
+};
 app.get('/latency', (req, res) => {
+    // parse request params and use it to select a random latency from the 
+    // log normal distribution 
     const mu = +req.query.mu || muDefault;
     const sigma = +req.query.sigma || sigmaDefault;
     const randomSleep = PD.rlnorm(1, mu, sigma);
-    setTimeout(() => {
-        res.send('ok');
-    }, randomSleep);
+    setTimeout(handleReq(req, res, mu, sigma), randomSleep);
 });
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 //# sourceMappingURL=app.js.map

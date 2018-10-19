@@ -1,0 +1,12 @@
+{
+  "name": "balena-prometheus-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pressure": "node ./modules/balena-api-mock/dist/apply-pressure.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
