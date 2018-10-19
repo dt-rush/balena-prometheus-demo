@@ -13,14 +13,14 @@ const distributions = [
 
 const randomDistribution = () => distributions[Math.round(Math.random() * (distributions.length - 1))];
 
-const distributionPeriod = 5 * 60 * 1000;
-const distributionBlendTargetPeriod = 1 * 60 * 1000;
+const distributionChangePeriod = 5 * 60 * 1000;
+const distributionTargetPeriod = 1 * 60 * 1000;
 const blendsPerTarget = 4;
 const doRequestPeriod = 50;
 
 export class RequestPressure {
 	distribution : number[]
-	blendTarget : number[]
+	targetDistribution : number[]
 	intervals : NodeJS.Timer[]
 
 	constructor() {
@@ -29,10 +29,10 @@ export class RequestPressure {
 
 	start() {
 		this.distribution = randomDistribution();
-		this.blendTarget = randomDistribution();
-		this.intervals.push(this.distributionInterval());	
-		this.intervals.push(this.distributionBlendTargetInterval());	
-		this.intervals.push(this.distributionDoBlendInterval());	
+		this.targetDistribution = randomDistribution();
+		this.intervals.push(this.distributionChangeInterval());	
+		this.intervals.push(this.distributionTargetInterval());	
+		this.intervals.push(this.doBlendInterval());	
 		this.intervals.push(this.doRequestInterval());	
 	}
 
@@ -40,20 +40,20 @@ export class RequestPressure {
 		this.intervals.map((interval) => clearInterval(interval));
 	}
 
-	distributionInterval = () => setInterval(() => {
+	distributionChangeInterval = () => setInterval(() => {
 		this.distribution = randomDistribution();
-	}, distributionPeriod)
+	}, distributionChangePeriod)
 
-	distributionBlendTargetInterval = () => setInterval(() => {
-		this.blendTarget = randomDistribution();
-	}, distributionBlendTargetPeriod)
+	distributionTargetInterval = () => setInterval(() => {
+		this.targetDistribution = randomDistribution();
+	}, distributionTargetPeriod)
 
-	distributionDoBlendInterval = () => setInterval(() => {
+	doBlendInterval = () => setInterval(() => {
 		this.distribution = [
-			(this.distribution[0] + this.blendTarget[0]) / 2,
-			(this.distribution[1] + this.blendTarget[1]) / 2,
+			(this.distribution[0] + this.targetDistribution[0]) / 2,
+			(this.distribution[1] + this.targetDistribution[1]) / 2,
 		];
-	}, distributionBlendTargetPeriod / blendsPerTarget)
+	}, distributionTargetPeriod / blendsPerTarget)
 
 	doRequestInterval = () => setInterval(() => {
 		r(`http://localhost:3000/latency?` +
